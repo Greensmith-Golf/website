@@ -86,15 +86,23 @@ p { margin: 0; }
 main:focus { outline: none; }
 
 header { border-bottom: 1px solid var(--line); }
-header .wrap { padding-block: 16px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+header .wrap { padding-block: 16px; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .mark { display: flex; align-items: center; gap: 10px; min-height: var(--tap); font: 700 22px/1 var(--font-display); letter-spacing: 0.04em; text-transform: uppercase; text-decoration: none; }
 .mark svg { width: 26px; height: 26px; flex: none; }
 .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: var(--tap); font: 600 15px/1 var(--font-body); padding: 12px 20px; border-radius: 8px; text-decoration: none; border: 1px solid transparent; cursor: pointer; touch-action: manipulation; transition: transform .15s, background .15s; }
-header .btn { padding: 10px 14px; font-size: 14px; }
+header .btn { padding: 10px 12px; font-size: 14px; white-space: nowrap; }
+/* Phones: smaller mark and a one-word Contact button so the header stays on one row. */
+header .mark { font-size: 18px; gap: 8px; }
+header .mark svg { width: 22px; height: 22px; }
+header .header-actions { gap: 6px; }
+.cta-us { display: none; }
 .header-actions { display: flex; align-items: center; gap: 8px; }
-.theme-toggle { width: var(--tap); height: var(--tap); padding: 0; border-radius: 8px; border: 1px solid var(--btn-line); background: transparent; color: var(--text); display: inline-grid; place-items: center; cursor: pointer; touch-action: manipulation; }
-.theme-toggle:hover { background: var(--surface-2); }
-.theme-toggle svg { width: 20px; height: 20px; }
+.theme-toggle, .icon-btn { width: var(--tap); height: var(--tap); padding: 0; border-radius: 8px; border: 1px solid var(--btn-line); background: transparent; color: var(--text); display: inline-grid; place-items: center; cursor: pointer; touch-action: manipulation; }
+.theme-toggle:hover, .icon-btn:hover { background: var(--surface-2); }
+.theme-toggle svg, .icon-btn svg { width: 20px; height: 20px; }
+.icon-btn .done, .icon-btn.is-done .arrow { display: none; }
+.icon-btn.is-done .done { display: block; color: var(--turf); }
+.sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .theme-toggle .sun, :root[data-theme="light"] .theme-toggle .moon { display: none; }
 :root[data-theme="light"] .theme-toggle .sun { display: block; }
 .btn-primary { background: var(--shot); color: var(--on-accent); border-color: var(--shot-edge); }
@@ -150,8 +158,6 @@ section { padding-block: 64px; }
 .asks li { display: flex; gap: 10px; }
 .asks li::before { content: ""; flex: none; width: 8px; height: 8px; margin-top: 9px; border-radius: 50%; background: var(--turf); }
 .addr { font-style: normal; color: var(--text-2); line-height: 1.5; }
-.share { justify-self: start; }
-.share svg { width: 18px; height: 18px; flex: none; }
 .show { font-size: 15px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 16px; }
 
 footer { border-top: 1px solid var(--line); }
@@ -161,6 +167,10 @@ footer .row { display: flex; justify-content: space-between; gap: 16px; flex-wra
 @media (min-width: 480px) {
   header .wrap { padding-block: 20px; }
   header .btn { padding: 12px 20px; font-size: 15px; }
+  header .mark { font-size: 22px; gap: 10px; }
+  header .mark svg { width: 26px; height: 26px; }
+  header .header-actions { gap: 8px; }
+  .cta-us { display: inline; }
   .hud .chip:nth-child(3) { display: block; }
 }
 @media (min-width: 768px) {
@@ -187,11 +197,16 @@ footer .row { display: flex; justify-content: space-between; gap: 16px; flex-wra
       Greensmith
     </a>
     <div class="header-actions">
+      <button class="icon-btn" id="share" type="button" aria-label="Share this page" title="Share this page">
+        <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7.5 7.5 12 3l4.5 4.5M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg>
+        <svg class="done" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+      </button>
+      <span class="sr-only" id="shared" aria-live="polite"></span>
       <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch to light mode">
         <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>
         <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/></svg>
       </button>
-      <a class="btn btn-primary" href="#contact">Contact us</a>
+      <a class="btn btn-primary" href="#contact"><span>Contact<span class="cta-us">&nbsp;us</span></span></a>
     </div>
   </div>
 </header>
@@ -286,11 +301,6 @@ footer .row { display: flex; justify-content: space-between; gap: 16px; flex-wra
         <a class="btn btn-primary" href="mailto:hello@greensmithgolf.com?subject=Hello%20Greensmith">Write an email</a>
         <p class="label">Mail</p>
         <address class="addr">Greensmith Golf LLC<br>522 W Riverside Ave Ste N<br>Spokane, WA 99201</address>
-        <button class="btn btn-ghost share" id="share" type="button">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7.5 7.5 12 3l4.5 4.5M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg>
-          Share this page
-        </button>
-        <p class="copied" id="shared" aria-live="polite"></p>
         <p class="show">We will be at the PGA Show in January 2027.</p>
       </div>
     </div>
@@ -323,9 +333,14 @@ footer .row { display: flex; justify-content: space-between; gap: 16px; flex-wra
       navigator.share({ title: 'Greensmith', text: 'Indoor golf simulation from Greensmith.', url: url }).catch(function () {});
       return;
     }
-    function showIt() { shared.textContent = url; }
+    function done() {
+      shared.textContent = 'Link copied';
+      share.classList.add('is-done'); share.title = 'Link copied';
+      setTimeout(function () { share.classList.remove('is-done'); share.title = 'Share this page'; shared.textContent = ''; }, 1800);
+    }
+    function showIt() { window.prompt('Copy this link:', url); }
     try {
-      navigator.clipboard.writeText(url).then(function () { shared.textContent = 'Link copied'; }, showIt);
+      navigator.clipboard.writeText(url).then(done, showIt);
     } catch (e) { showIt(); }
   });
 

@@ -12,7 +12,12 @@
 <meta property="og:site_name" content="Greensmith">
 <meta property="og:title" content="Greensmith">
 <meta property="og:description" content="Golf simulation software from Greensmith Golf LLC.">
+<meta property="og:image" content="https://greensmithgolf.com/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Greensmith. Indoor golf simulation. Play the course without the trip.">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://greensmithgolf.com/og-image.png">
 <meta name="theme-color" id="theme-color" content="#080f14">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 26 26'%3E%3Ccircle cx='13' cy='13' r='12' fill='%23080f14' stroke='%233ddc97' stroke-width='1.5'/%3E%3Ccircle cx='13' cy='13' r='7.5' fill='none' stroke='%233ddc97' stroke-width='1.5' opacity='.6'/%3E%3Ccircle cx='13' cy='13' r='3' fill='%23e89568'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -145,6 +150,8 @@ section { padding-block: 64px; }
 .asks li { display: flex; gap: 10px; }
 .asks li::before { content: ""; flex: none; width: 8px; height: 8px; margin-top: 9px; border-radius: 50%; background: var(--turf); }
 .addr { font-style: normal; color: var(--text-2); line-height: 1.5; }
+.share { justify-self: start; }
+.share svg { width: 18px; height: 18px; flex: none; }
 .show { font-size: 15px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 16px; }
 
 footer { border-top: 1px solid var(--line); }
@@ -279,6 +286,11 @@ footer .row { display: flex; justify-content: space-between; gap: 16px; flex-wra
         <a class="btn btn-primary" href="mailto:hello@greensmithgolf.com?subject=Hello%20Greensmith">Write an email</a>
         <p class="label">Mail</p>
         <address class="addr">Greensmith Golf LLC<br>522 W Riverside Ave Ste N<br>Spokane, WA 99201</address>
+        <button class="btn btn-ghost share" id="share" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7.5 7.5 12 3l4.5 4.5M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg>
+          Share this page
+        </button>
+        <p class="copied" id="shared" aria-live="polite"></p>
         <p class="show">We will be at the PGA Show in January 2027.</p>
       </div>
     </div>
@@ -301,6 +313,20 @@ footer .row { display: flex; justify-content: space-between; gap: 16px; flex-wra
     try {
       navigator.clipboard.writeText(text).then(function () { out.textContent = 'Copied ' + text; }, selectIt);
     } catch (e) { selectIt(); }
+  });
+
+  // Share: the phone's share sheet where available, otherwise copy the link.
+  var share = document.getElementById('share'), shared = document.getElementById('shared');
+  share.addEventListener('click', function () {
+    var url = 'https://greensmithgolf.com/';
+    if (navigator.share) {
+      navigator.share({ title: 'Greensmith', text: 'Indoor golf simulation from Greensmith.', url: url }).catch(function () {});
+      return;
+    }
+    function showIt() { shared.textContent = url; }
+    try {
+      navigator.clipboard.writeText(url).then(function () { shared.textContent = 'Link copied'; }, showIt);
+    } catch (e) { showIt(); }
   });
 
   // Contour lines: a green read seen from above. Colors come from the page tokens.

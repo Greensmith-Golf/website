@@ -145,7 +145,22 @@ section { padding-block: 64px; }
 
 .media { background: var(--surface); border-block: 1px solid var(--line); }
 .shots { margin-top: 40px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
-.shot { aspect-ratio: 16 / 10; max-width: 100%; border-radius: 10px; border: 1px dashed var(--line); background: var(--surface-2); display: grid; place-items: center; text-align: center; padding: 16px; color: var(--muted); font-size: 14px; }
+.shot { aspect-ratio: 16 / 9; max-width: 100%; border-radius: 10px; border: 1px dashed var(--line); background: var(--surface-2); display: grid; place-items: center; text-align: center; padding: 16px; color: var(--muted); font-size: 14px; }
+.shot.has-img { padding: 0; border-style: solid; overflow: hidden; }
+.shot.has-img img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.shot.has-img { cursor: zoom-in; }
+/* Screenshots are 16:9, so the dialog takes that shape and the image can scale straight from its thumbnail. */
+.lightbox { width: min(96vw, 1600px, calc(92vh * 16 / 9)); max-width: none; max-height: none; padding: 0; border: 0; background: transparent; overflow: visible; }
+.lightbox::backdrop { background: rgba(4, 8, 12, 0.88); }
+.lightbox img { display: block; width: 100%; height: auto; border-radius: 10px; cursor: zoom-out; transform-origin: 0 0; }
+.lightbox-close { position: absolute; top: -14px; right: -14px; width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--glass-line); background: var(--glass); color: #f3f7f5; font-size: 22px; line-height: 1; cursor: pointer; transition: opacity .15s; }
+.lightbox.moving .lightbox-close { opacity: 0; }
+@media (max-width: 767px) { .lightbox-close { top: 8px; right: 8px; } }
+@media (prefers-reduced-motion: no-preference) {
+  .lightbox[open]::backdrop { animation: lb-fade .32s ease-out; }
+  .lightbox.closing::backdrop { animation: lb-fade .26s ease-in reverse forwards; }
+}
+@keyframes lb-fade { from { opacity: 0; } }
 .shot strong { display: block; font: 600 16px/1.2 var(--font-display); color: var(--text-2); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 4px; }
 
 .contact .wrap { display: grid; grid-template-columns: minmax(0, 1fr); gap: 36px; align-items: start; }
@@ -271,7 +286,7 @@ footer .row { display: flex; justify-content: space-between; gap: 16px; flex-wra
         <p>Screens and clips from the current build.</p>
       </div>
       <div class="shots">
-        <div class="shot"><div><strong>Tee shot</strong>Screenshot coming</div></div>
+        <a class="shot has-img" href="assets/tee-shot-2000.webp"><img src="assets/tee-shot-1200.webp" srcset="assets/tee-shot-1200.webp 1200w, assets/tee-shot-2000.webp 2000w" sizes="(min-width: 768px) 360px, 100vw" width="2000" height="1125" loading="lazy" alt="Tee shot in Greensmith: a fairway framed by tall pines, with a pond and bunker short of the green"></a>
         <div class="shot"><div><strong>Green read</strong>Screenshot coming</div></div>
         <div class="shot"><div><strong>Course select</strong>Screenshot coming</div></div>
       </div>
@@ -314,6 +329,10 @@ footer .row { display: flex; justify-content: space-between; gap: 16px; flex-wra
   </div>
 </footer>
 
+<dialog class="lightbox" id="lightbox" aria-label="Screenshot">
+  <img alt="">
+  <button class="lightbox-close" type="button" aria-label="Close">&times;</button>
+</dialog>
 <script>
 (function () {
   var btn = document.getElementById('copy'), out = document.getElementById('copied'), email = document.getElementById('email');
@@ -324,6 +343,55 @@ footer .row { display: flex; justify-content: space-between; gap: 16px; flex-wra
       navigator.clipboard.writeText(text).then(function () { out.textContent = 'Copied ' + text; }, selectIt);
     } catch (e) { selectIt(); }
   });
+
+  // Screenshots open in a lightbox over the page; the link stays as the no-JS fallback.
+  // The image grows out of its thumbnail and shrinks back into it on close.
+  var lb = document.getElementById('lightbox'), lbImg = lb.querySelector('img');
+  var lbThumb = null, lbAnim = null, still = matchMedia('(prefers-reduced-motion: reduce)');
+  var EASE = 'cubic-bezier(.2, .75, .25, 1)';
+  function thumbFrame() {
+    var t = lbThumb.getBoundingClientRect(), r = lbImg.getBoundingClientRect(), k = t.width / r.width;
+    return { transform: 'translate(' + (t.left - r.left) + 'px, ' + (t.top - r.top) + 'px) scale(' + k + ')', borderRadius: (10 / k) + 'px' };
+  }
+  function openLb(a) {
+    var img = a.querySelector('img');
+    lbThumb = a;
+    lbImg.setAttribute('width', img.getAttribute('width')); lbImg.setAttribute('height', img.getAttribute('height'));
+    lbImg.src = img.currentSrc || img.src; lbImg.alt = img.alt;
+    var full = new Image();
+    full.onload = function () { if (lbThumb === a) lbImg.src = a.href; };
+    full.src = a.href;
+    lb.showModal();
+    if (still.matches) return;
+    a.style.visibility = 'hidden';
+    lb.classList.add('moving');
+    lbAnim = lbImg.animate([thumbFrame(), { transform: 'none', borderRadius: '10px' }], { duration: 320, easing: EASE });
+    lbAnim.onfinish = function () { lbAnim = null; lb.classList.remove('moving'); };
+  }
+  function closeLb() {
+    if (!lb.open || lb.classList.contains('closing')) return;
+    if (still.matches || !lbThumb) { lb.close(); return; }
+    if (lbAnim) lbAnim.cancel();
+    lb.classList.add('moving', 'closing');
+    lbAnim = lbImg.animate([{ transform: 'none', borderRadius: '10px' }, thumbFrame()], { duration: 260, easing: EASE, fill: 'forwards' });
+    lbAnim.onfinish = function () { lb.close(); };
+  }
+  if (lb.showModal) {
+    document.querySelectorAll('a.shot.has-img').forEach(function (a) {
+      a.addEventListener('click', function (e) { e.preventDefault(); openLb(a); });
+    });
+    lb.querySelector('.lightbox-close').addEventListener('click', closeLb);
+    lbImg.addEventListener('click', closeLb);
+    lb.addEventListener('click', function (e) { if (e.target === lb) closeLb(); });
+    // Esc: animate out when the browser lets us; Chrome sometimes closes the dialog anyway.
+    lb.addEventListener('cancel', function (e) { if (e.cancelable) { e.preventDefault(); closeLb(); } });
+    lb.addEventListener('close', function () {
+      if (lbAnim) { lbAnim.cancel(); lbAnim = null; }
+      lb.classList.remove('moving', 'closing');
+      if (lbThumb) lbThumb.style.visibility = '';
+      lbThumb = null;
+    });
+  }
 
   // Share: the phone's share sheet where available, otherwise copy the link.
   var share = document.getElementById('share'), shared = document.getElementById('shared');

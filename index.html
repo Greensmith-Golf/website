@@ -1,0 +1,366 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Greensmith</title>
+<meta name="robots" content="noindex">
+<script>(function () { var t = null; try { t = localStorage.getItem('theme'); } catch (e) {} if (t === 'light' || (!t && matchMedia('(prefers-color-scheme: light)').matches)) document.documentElement.dataset.theme = 'light'; })();</script>
+<meta property="og:url" content="https://greensmithgolf.com/">
+<meta name="description" content="Greensmith Golf LLC builds golf simulation software. Spokane, Washington.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Greensmith">
+<meta property="og:title" content="Greensmith">
+<meta property="og:description" content="Golf simulation software from Greensmith Golf LLC.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" id="theme-color" content="#080f14">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 26 26'%3E%3Ccircle cx='13' cy='13' r='12' fill='%23080f14' stroke='%233ddc97' stroke-width='1.5'/%3E%3Ccircle cx='13' cy='13' r='7.5' fill='none' stroke='%233ddc97' stroke-width='1.5' opacity='.6'/%3E%3Ccircle cx='13' cy='13' r='3' fill='%23e89568'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira+Semi+Condensed:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: mobile-first (base = phone; 480 / 768 / 1024 breakpoints); contour-map hero, three features, media strip, contact band. Dark tokens below; light tokens in the data-theme="light" block. */
+:root {
+  --ink: #080f14;
+  --surface: #0c1520;
+  --surface-2: #162532;
+  --line: #243849;
+  --text: #f3f7f5;
+  --text-2: #c8d4dc;
+  --muted: #8fa3b0;
+  --steel: #8aadc0;
+  --turf: #3ddc97;
+  --shot: #e89568;
+  --shot-hover: #f0a57c;
+  --on-accent: #091014;
+  --danger: #e85d5d;
+  --glass: rgba(8, 15, 20, 0.72);
+  --glass-line: rgba(138, 173, 192, 0.3);
+  --font-display: "Saira Semi Condensed", "Arial Narrow", system-ui, sans-serif;
+  --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-data: "JetBrains Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+  --wrap: 1120px;
+  --tap: 44px;
+  --focus: #e89568;
+  --btn-line: #2f4659;
+  --shot-edge: transparent;
+  color-scheme: dark;
+}
+/* Light mode: brand palette (cream ground, forest text, flag-red buttons). */
+:root[data-theme="light"] {
+  --ink: #f4f1e8;
+  --surface: #ece7d9;
+  --surface-2: #e3dccb;
+  --line: #d2c9b4;
+  --text: #14261b;
+  --text-2: #33473a;
+  --muted: #5a6a5e;
+  --steel: #2e7d4f;
+  --turf: #1f5a3a;
+  --shot: #d6463a;
+  --shot-hover: #c23b30;
+  --on-accent: #ffffff;
+  --focus: #1f5a3a;
+  --btn-line: #7d8574;
+  --shot-edge: #b0372d;
+  color-scheme: light;
+}
+html { -webkit-text-size-adjust: 100%;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--ink); color: var(--text); font: 400 16px/1.65 var(--font-body); }
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; border-radius: 4px; }
+.wrap { max-width: var(--wrap); margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+h1, h2, h3 { font-family: var(--font-display); font-weight: 600; text-wrap: balance; margin: 0; letter-spacing: 0.005em; }
+p { margin: 0; }
+.eyebrow { font: 500 12px/1 var(--font-data); text-transform: uppercase; letter-spacing: 0.14em; color: var(--turf); }
+
+.skip { position: absolute; left: max(16px, env(safe-area-inset-left, 0px)); top: calc(8px + env(safe-area-inset-top, 0px)); z-index: 10; transform: translateY(-200%); background: var(--shot); color: var(--on-accent); font-weight: 600; padding: 12px 16px; border-radius: 8px; text-decoration: none; }
+.skip:focus { transform: none; }
+main:focus { outline: none; }
+
+header { border-bottom: 1px solid var(--line); }
+header .wrap { padding-block: 16px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.mark { display: flex; align-items: center; gap: 10px; min-height: var(--tap); font: 700 22px/1 var(--font-display); letter-spacing: 0.04em; text-transform: uppercase; text-decoration: none; }
+.mark svg { width: 26px; height: 26px; flex: none; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: var(--tap); font: 600 15px/1 var(--font-body); padding: 12px 20px; border-radius: 8px; text-decoration: none; border: 1px solid transparent; cursor: pointer; touch-action: manipulation; transition: transform .15s, background .15s; }
+header .btn { padding: 10px 14px; font-size: 14px; }
+.header-actions { display: flex; align-items: center; gap: 8px; }
+.theme-toggle { width: var(--tap); height: var(--tap); padding: 0; border-radius: 8px; border: 1px solid var(--btn-line); background: transparent; color: var(--text); display: inline-grid; place-items: center; cursor: pointer; touch-action: manipulation; }
+.theme-toggle:hover { background: var(--surface-2); }
+.theme-toggle svg { width: 20px; height: 20px; }
+.theme-toggle .sun, :root[data-theme="light"] .theme-toggle .moon { display: none; }
+:root[data-theme="light"] .theme-toggle .sun { display: block; }
+.btn-primary { background: var(--shot); color: var(--on-accent); border-color: var(--shot-edge); }
+.btn-primary:hover { background: var(--shot-hover); }
+.btn-ghost { border-color: var(--btn-line); color: var(--text); background: transparent; }
+.btn-ghost:hover { background: var(--surface-2); }
+@media (prefers-reduced-motion: no-preference) { .btn:active { transform: translateY(1px); } }
+
+.hero { position: relative; overflow: hidden; border-bottom: 1px solid var(--line); }
+.hero canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.hero .wrap { position: relative; padding-block: 48px 56px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 36px; align-items: center; }
+.hero h1 { font-size: clamp(40px, 6.2vw, 72px); line-height: 0.98; text-transform: uppercase; margin-top: 16px; }
+.hero h1 em { font-style: normal; color: var(--turf); }
+.hero .lede { margin-top: 20px; font-size: 18px; color: var(--text-2); max-width: 34em; }
+.hero .actions { margin-top: 32px; display: flex; gap: 12px; flex-wrap: wrap; }
+
+.screen { --text: #f3f7f5; --text-2: #c8d4dc; position: relative; aspect-ratio: 16 / 9; max-width: 100%; border-radius: 12px; border: 1px solid var(--line); overflow: hidden;
+  background: linear-gradient(180deg, #1d3a4f 0%, #2c5a52 46%, #1f4a33 47%, #15331f 100%); }
+.screen .fairway { position: absolute; left: 50%; bottom: -10%; width: 70%; height: 62%; transform: translateX(-50%); background: #2f7a48; clip-path: polygon(42% 0, 58% 0, 100% 100%, 0 100%); opacity: .8; }
+.screen .pin { position: absolute; left: 50%; top: 40%; width: 2px; height: 22px; background: var(--text); }
+.screen .pin::after { content: ""; position: absolute; left: 2px; top: 0; border-left: 12px solid var(--shot); border-top: 5px solid transparent; border-bottom: 5px solid transparent; }
+.screen .tag { position: absolute; top: 12px; left: 12px; font: 500 11px/1 var(--font-data); letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-2); background: var(--glass); padding: 6px 8px; border-radius: 4px; }
+.hud { position: absolute; left: 12px; right: 12px; bottom: 12px; display: flex; gap: 8px; flex-wrap: wrap; }
+.chip { background: var(--glass); border: 1px solid var(--glass-line); border-radius: 6px; padding: 8px 10px; font: 500 12px/1.2 var(--font-data); color: var(--text-2); font-variant-numeric: tabular-nums; }
+.chip b { display: block; font: 600 18px/1.1 var(--font-display); color: var(--text); letter-spacing: 0.02em; }
+.chip.accent b { color: var(--shot); }
+.hud .chip:nth-child(3) { display: none; }
+.caption { margin-top: 10px; font-size: 13px; color: var(--muted); }
+
+section { padding-block: 64px; }
+.section-head { max-width: 40em; display: grid; gap: 12px; }
+.section-head h2 { font-size: clamp(30px, 4vw, 44px); line-height: 1.05; text-transform: uppercase; }
+.section-head p { color: var(--text-2); }
+
+.features { margin-top: 40px; display: grid; grid-template-columns: minmax(0, 1fr); border-top: 1px solid var(--line); }
+.feature { padding: 24px 0 8px; display: grid; gap: 12px; align-content: start; }
+.feature + .feature { border-top: 1px solid var(--line); }
+.feature h3 { font-size: 24px; line-height: 1.1; }
+.feature p { color: var(--text-2); font-size: 15px; }
+
+.media { background: var(--surface); border-block: 1px solid var(--line); }
+.shots { margin-top: 40px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
+.shot { aspect-ratio: 16 / 10; max-width: 100%; border-radius: 10px; border: 1px dashed var(--line); background: var(--surface-2); display: grid; place-items: center; text-align: center; padding: 16px; color: var(--muted); font-size: 14px; }
+.shot strong { display: block; font: 600 16px/1.2 var(--font-display); color: var(--text-2); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 4px; }
+
+.contact .wrap { display: grid; grid-template-columns: minmax(0, 1fr); gap: 36px; align-items: start; }
+.card { background: var(--surface-2); border: 1px solid var(--line); border-radius: 12px; padding: 24px; display: grid; gap: 16px; }
+.card .label { font: 500 12px/1 var(--font-data); text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); }
+.email-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.email { font: 500 20px/1.3 var(--font-data); color: var(--text); user-select: all; overflow-wrap: anywhere; min-width: 0; }
+.copied { font-size: 13px; color: var(--turf); min-height: 1.4em; }
+.asks { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; color: var(--text-2); }
+.asks li { display: flex; gap: 10px; }
+.asks li::before { content: ""; flex: none; width: 8px; height: 8px; margin-top: 9px; border-radius: 50%; background: var(--turf); }
+.addr { font-style: normal; color: var(--text-2); line-height: 1.5; }
+.show { font-size: 15px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 16px; }
+
+footer { border-top: 1px solid var(--line); }
+footer .wrap { padding-block: 32px 40px; display: grid; gap: 10px; font-size: 13px; color: var(--muted); }
+footer .row { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+
+@media (min-width: 480px) {
+  header .wrap { padding-block: 20px; }
+  header .btn { padding: 12px 20px; font-size: 15px; }
+  .hud .chip:nth-child(3) { display: block; }
+}
+@media (min-width: 768px) {
+  section { padding-block: 88px; }
+  .shots { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .card { padding: 28px; }
+}
+@media (min-width: 1024px) {
+  .hero .wrap { grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 48px; padding-block: 72px 80px; }
+  .contact .wrap { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 48px; }
+  .features { margin-top: 48px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .feature { padding: 28px 28px 8px 0; }
+  .feature + .feature { padding-left: 28px; border-top: 0; border-left: 1px solid var(--line); }
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#top">Skip to content</a>
+
+<header>
+  <div class="wrap">
+    <a class="mark" href="#top" aria-label="Greensmith home">
+      <svg viewBox="0 0 26 26" aria-hidden="true"><circle cx="13" cy="13" r="12" fill="none" style="stroke: var(--turf)" stroke-width="1.5"/><circle cx="13" cy="13" r="7.5" fill="none" style="stroke: var(--turf)" stroke-width="1.5" opacity=".6"/><circle cx="13" cy="13" r="3" style="fill: var(--shot)"/></svg>
+      Greensmith
+    </a>
+    <div class="header-actions">
+      <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch to light mode">
+        <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>
+        <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/></svg>
+      </button>
+      <a class="btn btn-primary" href="#contact">Contact us</a>
+    </div>
+  </div>
+</header>
+
+<main id="top" tabindex="-1">
+  <div class="hero">
+    <canvas id="contours" aria-hidden="true"></canvas>
+    <div class="wrap">
+      <div>
+        <p class="eyebrow">Indoor golf simulation</p>
+        <h1>Play the course <em>without the trip</em></h1>
+        <p class="lede">Greensmith builds playable 3D golf courses from real-world terrain and plays them with real ball physics off your launch monitor.</p>
+        <div class="actions">
+          <a class="btn btn-ghost" href="#product">Learn more</a>
+        </div>
+      </div>
+      <figure style="margin:0">
+        <div class="screen" role="img" aria-label="Placeholder for gameplay video, with an example shot readout">
+          <div class="fairway"></div>
+          <div class="pin"></div>
+          <span class="tag">Gameplay video coming</span>
+          <div class="hud">
+            <div class="chip accent">Carry<b>248 yd</b></div>
+            <div class="chip">Total<b>263 yd</b></div>
+            <div class="chip">Elev<b>+4 ft</b></div>
+          </div>
+        </div>
+        <figcaption class="caption">Example shot readout. Gameplay footage will replace this frame.</figcaption>
+      </figure>
+    </div>
+  </div>
+
+  <section id="product">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="eyebrow">The product</p>
+        <h2>Real ground, real ball flight</h2>
+        <p>Most simulators ship a fixed list of courses. Greensmith builds new ones from real terrain, so players can play the course near home.</p>
+      </div>
+      <div class="features">
+        <article class="feature">
+          <h3>Courses from real terrain</h3>
+          <p>Choose a location and Greensmith bakes the elevation, fairways, greens, bunkers and water into a playable course. Every green keeps its real slopes, so putts break the way they do outside.</p>
+        </article>
+        <article class="feature">
+          <h3>Launch monitor ready</h3>
+          <p>Hit real shots into a Uneekor or OpenFlight launch monitor. Support for more launch monitors is on the way.</p>
+        </article>
+        <article class="feature">
+          <h3>Rounds for the group</h3>
+          <p>Play full rounds with friends taking turns in the bay. The interface fits whatever screen the bay has, from a standard TV to an ultrawide projector.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="media">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="eyebrow">In the game</p>
+        <h2>See it in action</h2>
+        <p>Screens and clips from the current build.</p>
+      </div>
+      <div class="shots">
+        <div class="shot"><div><strong>Tee shot</strong>Screenshot coming</div></div>
+        <div class="shot"><div><strong>Green read</strong>Screenshot coming</div></div>
+        <div class="shot"><div><strong>Course select</strong>Screenshot coming</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="contact" class="contact">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="eyebrow">Get in touch</p>
+        <h2>Contact us</h2>
+        <p>Questions about Greensmith, partnerships or press? Send us an email and we will get back to you.</p>
+        <ul class="asks">
+          <li>Golf facilities and ranges adding simulator bays</li>
+          <li>Retailers and fitters</li>
+          <li>Launch monitor and hardware partners</li>
+          <li>Press</li>
+        </ul>
+      </div>
+      <div class="card">
+        <p class="label">Email us</p>
+        <div class="email-row">
+          <span class="email" id="email">hello@greensmithgolf.com</span>
+          <button class="btn btn-ghost" id="copy" type="button">Copy</button>
+        </div>
+        <p class="copied" id="copied" aria-live="polite"></p>
+        <a class="btn btn-primary" href="mailto:hello@greensmithgolf.com?subject=Hello%20Greensmith">Write an email</a>
+        <p class="label">Mail</p>
+        <address class="addr">Greensmith Golf LLC<br>522 W Riverside Ave Ste N<br>Spokane, WA 99201</address>
+        <p class="show">We will be at the PGA Show in January 2027.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="row"><span>© 2026 Greensmith Golf LLC</span><span>522 W Riverside Ave Ste N, Spokane, WA 99201</span></div>
+    <p>Courses in Greensmith software are unofficial recreations. Greensmith Golf LLC is not affiliated with or endorsed by any golf course.</p>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var btn = document.getElementById('copy'), out = document.getElementById('copied'), email = document.getElementById('email');
+  btn.addEventListener('click', function () {
+    var text = email.textContent;
+    function selectIt() { var r = document.createRange(); r.selectNodeContents(email); var s = getSelection(); s.removeAllRanges(); s.addRange(r); out.textContent = 'Selected. Press Ctrl+C to copy.'; }
+    try {
+      navigator.clipboard.writeText(text).then(function () { out.textContent = 'Copied ' + text; }, selectIt);
+    } catch (e) { selectIt(); }
+  });
+
+  // Contour lines: a green read seen from above. Colors come from the page tokens.
+  var c = document.getElementById('contours'), ctx = c.getContext('2d');
+  function token(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+  function draw() {
+    var dpr = window.devicePixelRatio || 1, w = c.clientWidth, h = c.clientHeight;
+    var turf = token('--turf'), steel = token('--steel'), ink = token('--ink');
+    c.width = w * dpr; c.height = h * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, w, h);
+    var cx = w * 0.78, cy = h * 0.55, levels = 22, base = Math.max(w, h) * 0.035;
+    for (var k = 0; k < levels; k++) {
+      var r = base + k * Math.max(w, h) * 0.032;
+      ctx.beginPath();
+      for (var i = 0; i <= 180; i++) {
+        var a = i / 180 * Math.PI * 2;
+        var wob = 1 + 0.16 * Math.sin(a * 2 + k * 0.35) + 0.07 * Math.sin(a * 3 - k * 0.5) + 0.04 * Math.cos(a * 5 + k);
+        var x = cx + Math.cos(a) * r * wob * 1.25, y = cy + Math.sin(a) * r * wob * 0.85;
+        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      }
+      ctx.closePath();
+      var major = k % 5 === 0;
+      ctx.globalAlpha = major ? 0.22 : 0.10;
+      ctx.strokeStyle = major ? turf : steel;
+      ctx.lineWidth = major ? 1.2 : 0.8;
+      ctx.stroke();
+    }
+    // Fade the lines out behind the headline.
+    var fade = ctx.createLinearGradient(0, 0, w * 0.6, 0);
+    fade.addColorStop(0, ink); fade.addColorStop(1, ink + '00');
+    ctx.globalAlpha = 0.92; ctx.fillStyle = fade; ctx.fillRect(0, 0, w, h);
+    ctx.globalAlpha = 1;
+  }
+  draw();
+  var t; addEventListener('resize', function () { clearTimeout(t); t = setTimeout(draw, 120); });
+
+  // Light / dark toggle. Starts from the device setting; a click is remembered per browser.
+  var root = document.documentElement, toggle = document.getElementById('theme-toggle');
+  var meta = document.getElementById('theme-color');
+  function label() {
+    var light = root.dataset.theme === 'light';
+    toggle.setAttribute('aria-label', light ? 'Switch to dark mode' : 'Switch to light mode');
+    meta.setAttribute('content', light ? '#f4f1e8' : '#080f14');
+  }
+  label();
+  // Follow the device setting until the visitor picks a mode.
+  var mq = matchMedia('(prefers-color-scheme: light)');
+  mq.addEventListener('change', function (e) {
+    var saved = null; try { saved = localStorage.getItem('theme'); } catch (err) {}
+    if (saved) return;
+    if (e.matches) root.dataset.theme = 'light'; else delete root.dataset.theme;
+    label(); draw();
+  });
+  toggle.addEventListener('click', function () {
+    var next = root.dataset.theme === 'light' ? 'dark' : 'light';
+    if (next === 'light') root.dataset.theme = 'light'; else delete root.dataset.theme;
+    try { localStorage.setItem('theme', next); } catch (e) {}
+    label(); draw();
+  });
+})();
+</script>
+</body>
+</html>

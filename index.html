@@ -120,7 +120,12 @@ header .header-actions { gap: 6px; }
 .hero .actions { margin-top: 32px; display: flex; gap: 12px; flex-wrap: wrap; }
 
 .screen { position: relative; aspect-ratio: 16 / 9; max-width: 100%; border-radius: 12px; border: 1px solid var(--line); overflow: hidden; background: #15331f; }
-.screen img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.screen video { display: block; width: 100%; height: 100%; object-fit: cover; }
+.video-toggle { position: absolute; right: 10px; bottom: 10px; width: 36px; height: 36px; padding: 0; border-radius: 50%; border: 1px solid var(--glass-line); background: var(--glass); color: #f3f7f5; display: grid; place-items: center; cursor: pointer; opacity: .75; transition: opacity .15s; }
+.video-toggle:hover, .video-toggle:focus-visible { opacity: 1; }
+.video-toggle svg { width: 16px; height: 16px; }
+.video-toggle .play, .video-toggle.is-paused .pause { display: none; }
+.video-toggle.is-paused .play { display: block; }
 .caption { margin-top: 10px; font-size: 13px; color: var(--muted); }
 
 section { padding-block: 64px; }
@@ -134,8 +139,24 @@ section { padding-block: 64px; }
 .feature h3 { font-size: 24px; line-height: 1.1; }
 .feature p { color: var(--text-2); font-size: 15px; }
 
-.media { background: var(--surface); border-block: 1px solid var(--line); }
-.shots { margin-top: 40px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
+.media { background: var(--surface); border-block: 1px solid var(--line); overflow-x: clip; }
+/* Gallery: one shot at a time with the next ones trailing off to the right. Without JS it is a plain scrolling strip. */
+.gallery { margin-top: 40px; container-type: inline-size; }
+.reel { overflow-x: auto; scroll-snap-type: x mandatory; }
+.track { display: flex; gap: 16px; }
+.track .shot { flex: none; width: 80cqw; scroll-snap-align: start; }
+.gallery-nav { display: none; }
+/* With JS the reel bleeds to both screen edges with the current shot centred; the shots either side are dimmed and fade toward the edges. */
+.gallery.is-live .reel { overflow: visible; margin-inline: calc(50% - 50vw); touch-action: pan-y;
+  -webkit-mask-image: linear-gradient(to right, transparent 0, #000 var(--fade-l, 0px), #000 var(--fade-r, 70%), transparent 100%);
+  mask-image: linear-gradient(to right, transparent 0, #000 var(--fade-l, 0px), #000 var(--fade-r, 70%), transparent 100%); }
+.gallery.is-live .track { transition: transform .7s cubic-bezier(.22, .8, .24, 1); }
+.gallery.is-live .shot { transition: opacity .7s ease; }
+.gallery.is-live .shot.is-before, .gallery.is-live .shot.is-after { opacity: .5; cursor: pointer; }
+.gallery.is-live .gallery-nav { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 16px; }
+.gallery-count { margin-left: 8px; font: 500 13px/1 var(--font-data); color: var(--muted); }
+.icon-btn:disabled { opacity: .35; cursor: default; background: transparent; }
+@media (prefers-reduced-motion: reduce) { .gallery.is-live .track, .gallery.is-live .shot { transition: none; } }
 .shot { aspect-ratio: 16 / 9; max-width: 100%; border-radius: 10px; border: 1px dashed var(--line); background: var(--surface-2); display: grid; place-items: center; text-align: center; padding: 16px; color: var(--muted); font-size: 14px; }
 .shot.has-img { padding: 0; border-style: solid; overflow: hidden; }
 .shot.has-img img { display: block; width: 100%; height: 100%; object-fit: cover; }
@@ -143,7 +164,9 @@ section { padding-block: 64px; }
 /* Screenshots are 16:9, so the dialog takes that shape and the image can scale straight from its thumbnail. */
 .lightbox { width: min(96vw, 1600px, calc(92vh * 16 / 9)); max-width: none; max-height: none; padding: 0; border: 0; background: transparent; overflow: visible; }
 .lightbox::backdrop { background: rgba(4, 8, 12, 0.88); }
-.lightbox img { display: block; width: 100%; height: auto; border-radius: 10px; cursor: zoom-out; transform-origin: 0 0; }
+.lightbox img, .lightbox video { display: block; width: 100%; height: auto; border-radius: 10px; cursor: zoom-out; transform-origin: 0 0; }
+.lightbox [hidden] { display: none; }
+.screen video { cursor: zoom-in; }
 .lightbox-close { position: absolute; top: -14px; right: -14px; width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--glass-line); background: var(--glass); color: #f3f7f5; font-size: 22px; line-height: 1; cursor: pointer; transition: opacity .15s; }
 .lightbox.moving .lightbox-close { opacity: 0; }
 @media (max-width: 767px) { .lightbox-close { top: 8px; right: 8px; } }
@@ -180,7 +203,8 @@ footer .row { display: flex; justify-content: space-between; gap: 16px; flex-wra
 }
 @media (min-width: 768px) {
   section { padding-block: 88px; }
-  .shots { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .track { gap: 20px; }
+  .track .shot { width: 66cqw; }
   .card { padding: 28px; }
 }
 @media (min-width: 1024px) {
@@ -230,8 +254,13 @@ footer .row { display: flex; justify-content: space-between; gap: 16px; flex-wra
       </div>
       <figure style="margin:0">
         <div class="screen">
-          <!-- Stand-in until the gameplay video is ready. -->
-          <img src="assets/hero-tee-1200.webp" srcset="assets/hero-tee-1200.webp 1200w, assets/hero-tee-2000.webp 2000w" sizes="(min-width: 1024px) 560px, 100vw" width="2000" height="1125" fetchpriority="high" alt="Tee shot in Greensmith: a fairway framed by tall pines, with a walled pond and a bunker short of the green">
+          <video id="hero-video" autoplay muted loop playsinline preload="auto" poster="assets/hero-loop-poster.webp" width="1280" height="720" aria-label="Gameplay from Greensmith">
+            <source src="assets/hero-loop-720.mp4" type="video/mp4">
+          </video>
+          <button class="video-toggle" id="video-toggle" type="button" aria-label="Pause video">
+            <svg class="pause" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6.5" y="5" width="3.5" height="14" rx="1"/><rect x="14" y="5" width="3.5" height="14" rx="1"/></svg>
+            <svg class="play" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></svg>
+          </button>
         </div>
         <figcaption class="caption">From the current build.</figcaption>
       </figure>
@@ -269,11 +298,21 @@ footer .row { display: flex; justify-content: space-between; gap: 16px; flex-wra
         <h2>See it in action</h2>
         <p>Screens and clips from the current build.</p>
       </div>
-      <div class="shots">
-        <a class="shot has-img" href="assets/tee-shot-pines-2000.webp"><img src="assets/tee-shot-pines-1200.webp" srcset="assets/tee-shot-pines-1200.webp 1200w, assets/tee-shot-pines-2000.webp 2000w" sizes="(min-width: 768px) 560px, 100vw" width="2000" height="1125" loading="lazy" alt="Tee shot in Greensmith: a fairway running uphill between tall pines to bunkers short of the green"></a>
-        <a class="shot has-img" href="assets/bunker-shot-2000.webp"><img src="assets/bunker-shot-1200.webp" srcset="assets/bunker-shot-1200.webp 1200w, assets/bunker-shot-2000.webp 2000w" sizes="(min-width: 768px) 560px, 100vw" width="2000" height="1125" loading="lazy" alt="Bunker shot in Greensmith: a ball in a fairway bunker, with the green and its bunker ahead under tall pines"></a>
-        <a class="shot has-img" href="assets/water-approach-2000.webp"><img src="assets/water-approach-1200.webp" srcset="assets/water-approach-1200.webp 1200w, assets/water-approach-2000.webp 2000w" sizes="(min-width: 768px) 560px, 100vw" width="2000" height="1125" loading="lazy" alt="Approach shot in Greensmith: a fairway leading to a pond, with the green and its bunkers beyond"></a>
-        <a class="shot has-img" href="assets/palms-tee-2000.webp"><img src="assets/palms-tee-1200.webp" srcset="assets/palms-tee-1200.webp 1200w, assets/palms-tee-2000.webp 2000w" sizes="(min-width: 768px) 560px, 100vw" width="2000" height="1125" loading="lazy" alt="Tee shot in Greensmith: a downhill par 5 lined with palms, with a pond and bunkers in front of the fairway"></a>
+      <div class="gallery" id="gallery" role="group" aria-roledescription="carousel" aria-label="Screenshots">
+        <div class="reel">
+          <div class="track">
+            <a class="shot has-img" href="assets/pond-tee-2000.webp"><img src="assets/pond-tee-1200.webp" srcset="assets/pond-tee-1200.webp 1200w, assets/pond-tee-2000.webp 2000w" sizes="(min-width: 768px) 800px, 86vw" width="2000" height="1125" loading="lazy" alt="Tee shot in Greensmith: a fairway framed by tall pines, with a walled pond and a bunker short of the green"></a>
+            <a class="shot has-img" href="assets/tee-shot-pines-2000.webp"><img src="assets/tee-shot-pines-1200.webp" srcset="assets/tee-shot-pines-1200.webp 1200w, assets/tee-shot-pines-2000.webp 2000w" sizes="(min-width: 768px) 800px, 86vw" width="2000" height="1125" loading="lazy" alt="Tee shot in Greensmith: a fairway running uphill between tall pines to bunkers short of the green"></a>
+            <a class="shot has-img" href="assets/bunker-shot-2000.webp"><img src="assets/bunker-shot-1200.webp" srcset="assets/bunker-shot-1200.webp 1200w, assets/bunker-shot-2000.webp 2000w" sizes="(min-width: 768px) 800px, 86vw" width="2000" height="1125" loading="lazy" alt="Bunker shot in Greensmith: a ball in a fairway bunker, with the green and its bunker ahead under tall pines"></a>
+            <a class="shot has-img" href="assets/water-approach-2000.webp"><img src="assets/water-approach-1200.webp" srcset="assets/water-approach-1200.webp 1200w, assets/water-approach-2000.webp 2000w" sizes="(min-width: 768px) 800px, 86vw" width="2000" height="1125" loading="lazy" alt="Approach shot in Greensmith: a fairway leading to a pond, with the green and its bunkers beyond"></a>
+            <a class="shot has-img" href="assets/palms-tee-2000.webp"><img src="assets/palms-tee-1200.webp" srcset="assets/palms-tee-1200.webp 1200w, assets/palms-tee-2000.webp 2000w" sizes="(min-width: 768px) 800px, 86vw" width="2000" height="1125" loading="lazy" alt="Tee shot in Greensmith: a downhill par 5 lined with palms, with a pond and bunkers in front of the fairway"></a>
+          </div>
+        </div>
+        <div class="gallery-nav">
+          <button class="icon-btn" id="gallery-prev" type="button" aria-label="Previous screenshot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+          <button class="icon-btn" id="gallery-next" type="button" aria-label="Next screenshot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+          <span class="gallery-count" id="gallery-count" aria-live="polite"></span>
+        </div>
       </div>
     </div>
   </section>
@@ -316,6 +355,7 @@ footer .row { display: flex; justify-content: space-between; gap: 16px; flex-wra
 
 <dialog class="lightbox" id="lightbox" aria-label="Screenshot">
   <img alt="">
+  <video muted loop playsinline preload="none" width="1280" height="720" hidden></video>
   <button class="lightbox-close" type="button" aria-label="Close">&times;</button>
 </dialog>
 <script>
@@ -331,52 +371,155 @@ footer .row { display: flex; justify-content: space-between; gap: 16px; flex-wra
 
   // Screenshots open in a lightbox over the page; the link stays as the no-JS fallback.
   // The image grows out of its thumbnail and shrinks back into it on close.
-  var lb = document.getElementById('lightbox'), lbImg = lb.querySelector('img');
-  var lbThumb = null, lbAnim = null, still = matchMedia('(prefers-reduced-motion: reduce)');
+  var lb = document.getElementById('lightbox'), lbImg = lb.querySelector('img'), lbVid = lb.querySelector('video');
+  var lbThumb = null, lbMedia = lbImg, lbAnim = null, still = matchMedia('(prefers-reduced-motion: reduce)');
   var EASE = 'cubic-bezier(.2, .75, .25, 1)';
   function thumbFrame() {
-    var t = lbThumb.getBoundingClientRect(), r = lbImg.getBoundingClientRect(), k = t.width / r.width;
+    var t = lbThumb.getBoundingClientRect(), r = lbMedia.getBoundingClientRect(), k = t.width / r.width;
     return { transform: 'translate(' + (t.left - r.left) + 'px, ' + (t.top - r.top) + 'px) scale(' + k + ')', borderRadius: (10 / k) + 'px' };
+  }
+  function expandLb() {
+    lb.showModal();
+    if (still.matches) return;
+    lbThumb.style.visibility = 'hidden';
+    lb.classList.add('moving');
+    lbAnim = lbMedia.animate([thumbFrame(), { transform: 'none', borderRadius: '10px' }], { duration: 320, easing: EASE });
+    lbAnim.onfinish = function () { lbAnim = null; lb.classList.remove('moving'); };
   }
   function openLb(a) {
     if (lb.open) return;
     var img = a.querySelector('img');
-    lbThumb = a;
+    lbThumb = a; lbMedia = lbImg; lbImg.hidden = false; lbVid.hidden = true;
+    lb.setAttribute('aria-label', 'Screenshot');
     lbImg.setAttribute('width', img.getAttribute('width')); lbImg.setAttribute('height', img.getAttribute('height'));
     lbImg.src = img.currentSrc || img.src; lbImg.alt = img.alt;
     var full = new Image();
     full.onload = function () { if (lbThumb === a) lbImg.src = a.href; };
     full.src = a.href;
-    lb.showModal();
-    if (still.matches) return;
-    a.style.visibility = 'hidden';
-    lb.classList.add('moving');
-    lbAnim = lbImg.animate([thumbFrame(), { transform: 'none', borderRadius: '10px' }], { duration: 320, easing: EASE });
-    lbAnim.onfinish = function () { lbAnim = null; lb.classList.remove('moving'); };
+    expandLb();
+  }
+  // The hero clip opens in a second player that picks up where the small one is.
+  function openVideo(v) {
+    if (lb.open) return;
+    lbThumb = v; lbMedia = lbVid; lbImg.hidden = true; lbVid.hidden = false;
+    lb.setAttribute('aria-label', 'Video');
+    if (!lbVid.src) { lbVid.poster = v.poster; lbVid.preload = 'auto'; lbVid.src = v.currentSrc; }
+    // A seek before the metadata arrives is ignored, so wait for it on the first open.
+    function sync() { lbVid.currentTime = v.currentTime; }
+    if (lbVid.readyState >= 1) sync(); else lbVid.addEventListener('loadedmetadata', sync, { once: true });
+    if (!v.paused) { var p = lbVid.play(); if (p) p.catch(function () {}); }
+    expandLb();
   }
   function closeLb() {
     if (!lb.open || lb.classList.contains('closing')) return;
     if (still.matches || !lbThumb) { lb.close(); return; }
     if (lbAnim) lbAnim.cancel();
     lb.classList.add('moving', 'closing');
-    lbAnim = lbImg.animate([{ transform: 'none', borderRadius: '10px' }, thumbFrame()], { duration: 260, easing: EASE, fill: 'forwards' });
+    lbAnim = lbMedia.animate([{ transform: 'none', borderRadius: '10px' }, thumbFrame()], { duration: 260, easing: EASE, fill: 'forwards' });
     lbAnim.onfinish = function () { lb.close(); };
   }
   if (lb.showModal) {
-    document.querySelectorAll('a.shot.has-img').forEach(function (a) {
-      a.addEventListener('click', function (e) { e.preventDefault(); openLb(a); });
-    });
     lb.querySelector('.lightbox-close').addEventListener('click', closeLb);
     lbImg.addEventListener('click', closeLb);
+    lbVid.addEventListener('click', closeLb);
     lb.addEventListener('click', function (e) { if (e.target === lb) closeLb(); });
     // Esc: animate out when the browser lets us; Chrome sometimes closes the dialog anyway.
     lb.addEventListener('cancel', function (e) { if (e.cancelable) { e.preventDefault(); closeLb(); } });
     lb.addEventListener('close', function () {
       if (lbAnim) { lbAnim.cancel(); lbAnim = null; }
       lb.classList.remove('moving', 'closing');
+      if (lbMedia === lbVid) {
+        // Hand the playback position back so the small clip carries on from here.
+        lbThumb.currentTime = lbVid.currentTime;
+        lbVid.pause();
+      }
       if (lbThumb) lbThumb.style.visibility = '';
       lbThumb = null;
     });
+  }
+
+  // Gallery: the current shot sits in the middle; the arrows (or a swipe) slide the reel one shot. The current shot opens in the lightbox; a side one moves to the middle.
+  var gal = document.getElementById('gallery'), reel = gal.querySelector('.reel'), track = gal.querySelector('.track');
+  var slides = [].slice.call(track.children), cur = 0, swiped = false, x0 = null;
+  var prev = document.getElementById('gallery-prev'), next = document.getElementById('gallery-next'), count = document.getElementById('gallery-count');
+  gal.classList.add('is-live');
+  function layout(animate) {
+    var sw = slides[0].offsetWidth, step = slides.length > 1 ? slides[1].offsetLeft - slides[0].offsetLeft : sw;
+    var left = (reel.clientWidth - sw) / 2;
+    reel.style.setProperty('--fade-l', left + 'px');
+    reel.style.setProperty('--fade-r', (left + sw) + 'px');
+    if (!animate) track.style.transition = 'none';
+    track.style.transform = 'translateX(' + (left - cur * step) + 'px)';
+    if (!animate) { void track.offsetWidth; track.style.transition = ''; }
+  }
+  function show(i, animate) {
+    cur = Math.max(0, Math.min(slides.length - 1, i));
+    slides.forEach(function (s, k) {
+      s.classList.toggle('is-before', k < cur);
+      s.classList.toggle('is-after', k > cur);
+      s.tabIndex = k === cur ? 0 : -1;
+      s.setAttribute('aria-hidden', k === cur ? 'false' : 'true');
+    });
+    prev.disabled = cur === 0;
+    next.disabled = cur === slides.length - 1;
+    count.textContent = (cur + 1) + ' / ' + slides.length;
+    layout(animate !== false);
+  }
+  slides.forEach(function (a, k) {
+    a.addEventListener('click', function (e) {
+      e.preventDefault();
+      if (swiped) { swiped = false; return; }
+      if (k !== cur) show(k);
+      else if (lb.showModal) openLb(a);
+      else location.href = a.href;
+    });
+  });
+  prev.addEventListener('click', function () { show(cur - 1); });
+  next.addEventListener('click', function () { show(cur + 1); });
+  gal.addEventListener('keydown', function (e) {
+    if (e.key === 'ArrowRight') { show(cur + 1); e.preventDefault(); }
+    else if (e.key === 'ArrowLeft') { show(cur - 1); e.preventDefault(); }
+  });
+  // Touch swipe; vertical drags still scroll the page (touch-action: pan-y on the reel).
+  reel.addEventListener('pointerdown', function (e) { swiped = false; x0 = e.pointerType === 'mouse' ? null : e.clientX; });
+  reel.addEventListener('pointercancel', function () { x0 = null; });
+  reel.addEventListener('pointerup', function (e) {
+    if (x0 === null) return;
+    var dx = e.clientX - x0; x0 = null;
+    if (Math.abs(dx) > 40) { swiped = true; show(cur + (dx < 0 ? 1 : -1)); }
+  });
+  addEventListener('resize', function () { layout(false); });
+  show(0, false);
+  // Lazy loading skips shots parked off to the side, so they would pop in on the first pass.
+  // Fetch and decode them all once the gallery is close to the screen.
+  function warm() {
+    slides.forEach(function (s) {
+      var img = s.querySelector('img');
+      img.loading = 'eager';
+      if (img.decode) img.decode().catch(function () {});
+    });
+  }
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (entries) {
+      if (entries.some(function (e) { return e.isIntersecting; })) { io.disconnect(); warm(); }
+    }, { rootMargin: '600px 0px' });
+    io.observe(gal);
+  } else warm();
+
+  // Hero clip loops on its own; the button pauses it, and reduced-motion visitors start paused.
+  var vid = document.getElementById('hero-video'), vt = document.getElementById('video-toggle');
+  function videoState() { vt.classList.toggle('is-paused', vid.paused); vt.setAttribute('aria-label', vid.paused ? 'Play video' : 'Pause video'); }
+  vid.addEventListener('play', videoState);
+  vid.addEventListener('pause', videoState);
+  vt.addEventListener('click', function () { if (vid.paused) { var p = vid.play(); if (p) p.catch(function () {}); } else vid.pause(); });
+  if (still.matches) vid.pause();
+  videoState();
+  if (lb.showModal) {
+    vid.tabIndex = 0;
+    vid.setAttribute('role', 'button');
+    vid.setAttribute('aria-label', 'Gameplay from Greensmith. Open larger');
+    vid.addEventListener('click', function () { openVideo(vid); });
+    vid.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openVideo(vid); } });
   }
 
   // Share: the phone's share sheet where available, otherwise copy the link.
